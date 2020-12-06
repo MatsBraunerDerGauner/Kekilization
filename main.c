@@ -35,6 +35,29 @@ void addPointToList(int x, int y, int choose) {
     listCount++;
 }
 
+    // random islands
+void createIsland(int size, int islandPoint) {
+
+    for (int j = 0; j < size; j++) {
+        for (int i = 0; i < size; i++) {
+
+            int chance;
+            int probability=rand()%size*size;
+            if(probability<=size*size) {
+                chance=0;
+            }else{
+                chance=1;
+            }
+
+            list[islandPoint+i].choose=chance;
+
+        }
+        islandPoint += 30;
+    }
+
+}
+
+
 bool inHand = false;
 struct point_t mousePosBackup = { 0, 0 };
 
@@ -50,8 +73,41 @@ int main(void) {
     sfSprite_setTexture(grassSprite, sfTexture_createFromFile("Images/tiles.png", 0), 0);
 
     // Random Map Test
+    // Random Map
+    // addPointToList(int x, int y, int choose) => x = j, y = i
 
-    
+    for (int i = 0; i < 30; i++) {
+        for (int j = 0; j < 30; j++) {
+
+            addPointToList(j, i, 1);
+        }
+    }
+
+    for (int i = 0; i < 20; i++) {
+
+        int size;
+
+        int islandPoint = rand()%900;
+        islandPoint -= 1;
+
+        list[islandPoint].choose;
+
+        int islandSize = rand()%3;
+
+        if (islandSize < 2) {
+            size = 3;
+            createIsland(size, islandPoint);
+        }
+        if (islandSize == 2) {
+            size = 5;
+            createIsland(size, islandPoint);
+        }
+        if (islandSize > 2) {
+            size = 7;
+            createIsland(size, islandPoint);
+        }
+
+    }
 
 
     while (sfRenderWindow_isOpen(window)) {
@@ -102,7 +158,7 @@ int main(void) {
                         break;
                 }
 
-                
+
 
 
 
@@ -111,7 +167,7 @@ int main(void) {
         }
         sfRenderWindow_clear(window, sfTransparent);
         for (int i=0; i<listCount; i++) {
-            sfVector2f vec = { (nullPoint.x-scale*h_tileWidth) + (list[i].x-list[i].y)*scale*h_tileWidth, nullPoint.y + (list[i].x+list[i].y)*scale*h_tileHeight }; 
+            sfVector2f vec = { (nullPoint.x-scale*h_tileWidth) + (list[i].x-list[i].y)*scale*h_tileWidth, nullPoint.y + (list[i].x+list[i].y)*scale*h_tileHeight };
 
             sfIntRect rect = { list[i].choose * tileWidth, 0, tileWidth, tileHeight };
             sfSprite_setTextureRect(grassSprite, rect);
@@ -119,7 +175,7 @@ int main(void) {
             sfVector2f scaleS = { scale, scale };
             sfSprite_setScale(grassSprite, scaleS);
 
-            sfSprite_setPosition(grassSprite, vec); 
+            sfSprite_setPosition(grassSprite, vec);
             sfRenderWindow_drawSprite(window, grassSprite, NULL);
         }
 
@@ -128,7 +184,7 @@ int main(void) {
 
 
         sfRenderWindow_display(window);
-         
+
     }
 }
 
