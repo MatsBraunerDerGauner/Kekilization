@@ -1,8 +1,23 @@
 #include<SFML/Graphics.h>
 #include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+
+/*-------------------------------------------------------------------------------------*\
+|----------<- ToDo ->-------------------------------------------------------------------|
+|   1 random map with height meter over meer                                            |
+|   2 select tile                                                                       |
+|   3 larger zoom in and zoom out                                                       |
+|   4 performenc                                                                        |
+|                                                                                       |
+\*-------------------------------------------------------------------------------------*/
 
 typedef enum { false, true } bool;
 
+// Typ's of Grafics (Suface)
+typedef enum { _grass, _water } surfaceTyp;
+
+// Windows Size
 #define WINDOW_WIDTH 900
 #define WINDOW_HEIGHT 700
 
@@ -10,17 +25,21 @@ sfRenderWindow *window;
 sfSprite *grassSprite;
 sfSprite *grassSprite2;
 
+// Tile Size
 #define tileWidth 40
 #define tileHeight 20
 
+// Tile scale
 int scale = 1;
 
+// Tile half of Size
 int h_tileWidth = tileWidth / 2;
 int h_tileHeight = tileHeight / 2;
 
 
 struct point_t {
-    int x, y, choose;
+    int x, y;
+    surfaceTyp type;
 } list[10000];
 
 int listCount = 0;
@@ -28,12 +47,24 @@ int listCount = 0;
 
 struct point_t nullPoint = { WINDOW_WIDTH/2, WINDOW_HEIGHT/2 };
 
-void addPointToList(int x, int y, int choose) {
+
+
+
+void addPointToList(int x, int y, surfaceTyp type) {
     list[listCount].x = x;
     list[listCount].y = y;
-    list[listCount].choose = choose;
+    list[listCount].type = type;
     listCount++;
 }
+
+struct point_t *getListItem(int x, int y) {
+    for (int i = 0; i < listCount; i++) {
+        if (list[i].x == x && list[i].y == y)
+            return &list[i];
+    }
+    return NULL;
+}
+
 
     // random islands
 void createIsland(int size, int islandPoint) {
@@ -49,7 +80,7 @@ void createIsland(int size, int islandPoint) {
                 chance=1;
             }
 
-            list[islandPoint+i].choose=chance;
+            list[islandPoint+i].type = chance;
 
         }
         islandPoint += 30;
@@ -57,11 +88,31 @@ void createIsland(int size, int islandPoint) {
 
 }
 
+bool prozent(int prozent) {
+    int random = rand() % 101;
+    
+    if (random <= prozent)
+        return true;
+
+    return false;
+}
+
+int randomHeightBetween(int min, int max) {
+   int zahl;
+
+   zahl = rand() % ((max - min) + 1);
+
+   zahl += min;
+
+   return zahl;
+}
 
 bool inHand = false;
 struct point_t mousePosBackup = { 0, 0 };
 
 int main(void) {
+
+    srand(time(NULL));
 
 
     // window
@@ -72,10 +123,8 @@ int main(void) {
     grassSprite = sfSprite_create();
     sfSprite_setTexture(grassSprite, sfTexture_createFromFile("Images/tiles.png", 0), 0);
 
-    // Random Map Test
     // Random Map
     // addPointToList(int x, int y, int choose) => x = j, y = i
-
     for (int i = 0; i < 30; i++) {
         for (int j = 0; j < 30; j++) {
 
@@ -90,7 +139,6 @@ int main(void) {
         int islandPoint = rand()%900;
         islandPoint -= 1;
 
-        list[islandPoint].choose;
 
         int islandSize = rand()%3;
 
@@ -169,7 +217,7 @@ int main(void) {
         for (int i=0; i<listCount; i++) {
             sfVector2f vec = { (nullPoint.x-scale*h_tileWidth) + (list[i].x-list[i].y)*scale*h_tileWidth, nullPoint.y + (list[i].x+list[i].y)*scale*h_tileHeight };
 
-            sfIntRect rect = { list[i].choose * tileWidth, 0, tileWidth, tileHeight };
+            sfIntRect rect = { list[i].type * tileWidth, 0, tileWidth, tileHeight };
             sfSprite_setTextureRect(grassSprite, rect);
 
             sfVector2f scaleS = { scale, scale };
