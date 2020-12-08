@@ -131,8 +131,8 @@ int main(void) {
 
     // Random Map
     
-    for (int i = 0; i < 20; i++) {
-        for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < 200; i++) {
+        for (int j = 0; j < 100; j++) {
             addPointToList(j, i, _water);
         }
     }
@@ -168,26 +168,30 @@ int main(void) {
 
                 // select
                 int offsetX = 0, offsetY = 0;
+
+                int temp_tileWidth = tileWidth * scale;
+                int temp_h_tileWidth = h_tileWidth * scale;
+                int temp_h_tileHeight = h_tileHeight * scale;
                 
 
-                selectedTile.x = (posX - nullPoint.x) / tileWidth;
-                selectedTile.y = (posY - nullPoint.y) / h_tileHeight;
+                selectedTile.x = (posX - nullPoint.x) / temp_tileWidth;
+                selectedTile.y = (posY - nullPoint.y) / temp_h_tileHeight;
 
-                offsetX = (posX - nullPoint.x) % tileWidth;
-                offsetY = (posY - nullPoint.y) % h_tileHeight;
+                offsetX = (posX - nullPoint.x) % temp_tileWidth;
+                offsetY = (posY - nullPoint.y) % temp_h_tileHeight;
 
                 switch (selectedTile.y % 2) {
                     case 0:
-                        if (offsetX <= (offsetY - h_tileHeight) / -0.5) {
+                        if (offsetX <= (offsetY - temp_h_tileHeight) / -0.5) {
                             selectedTile.x--;
                             selectedTile.y--;
                         } 
-                        if (offsetX - h_tileWidth >= offsetY / 0.5) {
+                        if (offsetX - temp_h_tileWidth >= offsetY / 0.5) {
                             selectedTile.y--;
                         }
                         break;
                     case 1:
-                        switch (offsetX / h_tileWidth) {
+                        switch (offsetX / temp_h_tileWidth) {
                             int eins, zwei;
                             case 0:
                                 if (offsetX <= offsetY / 0.5)
@@ -196,15 +200,13 @@ int main(void) {
                                     selectedTile.y--;
                                 break;
                             case 1:
-                                eins = offsetX - h_tileWidth;
-                                zwei = (offsetY - h_tileHeight) / -0.5;
-                                system("cls");
-                                printf("eins: %d zwei: %d\n", eins, zwei);
+                                eins = offsetX - temp_h_tileWidth;
+                                zwei = (offsetY - temp_h_tileHeight) / -0.5;
 
-                                if (offsetX - h_tileWidth <= (offsetY - h_tileHeight) / -0.5) {
+                                if (offsetX - temp_h_tileWidth <= (offsetY - temp_h_tileHeight) / -0.5) {
                                     selectedTile.y--;
                                 }
-                                if (offsetX - h_tileWidth >= (offsetY - h_tileHeight) / -0.5) {
+                                if (offsetX - temp_h_tileWidth >= (offsetY - temp_h_tileHeight) / -0.5) {
                                 }
                                 break;
                         } 
@@ -214,23 +216,6 @@ int main(void) {
 
 
 
-                /* 
-                selectedTile.x = cellY + cellX;
-                selectedTile.y = cellY - cellX;
-                */
-
-                // mittlere stücke
-                /*
-                if ((-offsetY + h_tileHeight) / 0.5 >= offsetX)
-                    selectedTile.x--;
-                else if ((offsetY - h_tileHeight) / 0.5 >= offsetX)
-                    selectedTile.y++;
-                else if ((-(offsetY - h_tileHeight) + h_tileHeight) / 0.5 <= offsetX - h_tileWidth)
-                    selectedTile.x++;
-                else if (offsetY / 0.5 <= offsetX - h_tileWidth)
-                    selectedTile.y--;
-                
-                */ 
                 char cellX_Text[25];
                 char cellY_Text[25];
 
@@ -285,6 +270,8 @@ int main(void) {
 
         // selected
         sfVector2f vecSel = { nullPoint.x + scale * (selectedTile.x * tileWidth + selectedTile.y % 2 * h_tileWidth), nullPoint.y + scale * (selectedTile.y * h_tileHeight) };
+        sfVector2f scaleSelected = { scale, scale };
+        sfSprite_setScale(selected, scaleSelected);
         sfSprite_setPosition(selected, vecSel);
         sfRenderWindow_drawSprite(window, selected, NULL);
        
