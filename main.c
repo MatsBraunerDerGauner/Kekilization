@@ -5,10 +5,11 @@
 
 /*-------------------------------------------------------------------------------------*\
 |----------<- ToDo ->-------------------------------------------------------------------|
-|   1 random map with height meter over meer                                            |
-|   2 select tile                                                                       |
-|   3 larger zoom in and zoom out                                                       |
-|   4 performenc                                                                        |
+|   2 random map / Silvan                                                               |
+|   4 select ändern                                                                     |
+|                                                                                       |
+|                                                                                       |
+|                                                                                       |
 |                                                                                       |
 \*-------------------------------------------------------------------------------------*/
 
@@ -23,14 +24,14 @@ typedef enum { _grass, _water } surfaceTyp;
 
 sfRenderWindow *window;
 sfSprite *grassSprite;
-sfSprite *grassSprite2;
+sfSprite *selected;
 
 // Tile Size
 #define tileWidth 40
 #define tileHeight 20
 
 // Tile scale
-int scale = 1;
+float scale = 1;
 
 // Tile half of Size
 int h_tileWidth = tileWidth / 2;
@@ -39,8 +40,9 @@ int h_tileHeight = tileHeight / 2;
 
 struct point_t {
     int x, y;
+    bool selected;
     surfaceTyp type;
-} list[10000];
+} list[1000000];
 
 int listCount = 0;
 
@@ -66,27 +68,6 @@ struct point_t *getListItem(int x, int y) {
 }
 
 
-    // random islands
-void createIsland(int size, int islandPoint) {
-
-    for (int j = 0; j < size; j++) {
-        for (int i = 0; i < size; i++) {
-
-            int chance;
-            int probability=rand()%size*size;
-            if(probability<=size*size) {
-                chance=0;
-            }else{
-                chance=1;
-            }
-
-            list[islandPoint+i].type = chance;
-
-        }
-        islandPoint += 30;
-    }
-
-}
 
 bool prozent(int prozent) {
     int random = rand() % 101;
@@ -105,56 +86,55 @@ int randomHeightBetween(int min, int max) {
    zahl += min;
 
    return zahl;
-}
+} 
 
 bool inHand = false;
 struct point_t mousePosBackup = { 0, 0 };
+
+struct point_t selectedTile = { 0, 0 };
 
 int main(void) {
 
     srand(time(NULL));
 
+    // Textanzeige
+    sfText *cellXText = sfText_create();
+    sfText_setFillColor(cellXText, sfRed);
+    sfText_setColor(cellXText, sfBlack);
+    sfText_setFont(cellXText, sfFont_createFromFile("Fonts/arial.ttf"  ));
+    sfText_setCharacterSize(cellXText, 20);
+
+    sfText *cellYText = sfText_create();
+    sfText_setFillColor(cellYText, sfRed);
+    sfText_setColor(cellYText, sfBlack);
+    sfText_setFont(cellYText, sfFont_createFromFile("Fonts/arial.ttf"  ));
+    sfText_setCharacterSize(cellYText, 20);
+    sfVector2f poss = { 0, 50 };
+    sfText_setPosition(cellYText, poss);
+
+
+
 
     // window
     sfVideoMode mode = { WINDOW_WIDTH, WINDOW_HEIGHT, 32 };
     window = sfRenderWindow_create(mode, "Kekcivilisation", sfDefaultStyle, NULL);
+    
 
-    // gras
+    // tiles
     grassSprite = sfSprite_create();
     sfSprite_setTexture(grassSprite, sfTexture_createFromFile("Images/tiles.png", 0), 0);
 
+    // selectet
+    selected = sfSprite_create();
+    sfSprite_setTexture(selected, sfTexture_createFromFile("Images/selected.png", 0), 0);
+    
+
     // Random Map
-    // addPointToList(int x, int y, int choose) => x = j, y = i
-    for (int i = 0; i < 30; i++) {
-        for (int j = 0; j < 30; j++) {
-
-            addPointToList(j, i, 1);
-        }
-    }
-
+    
     for (int i = 0; i < 20; i++) {
-
-        int size;
-
-        int islandPoint = rand()%900;
-        islandPoint -= 1;
-
-
-        int islandSize = rand()%3;
-
-        if (islandSize < 2) {
-            size = 3;
-            createIsland(size, islandPoint);
+        for (int j = 0; j < 10; j++) {
+            addPointToList(j, i, _water);
         }
-        if (islandSize == 2) {
-            size = 5;
-            createIsland(size, islandPoint);
-        }
-        if (islandSize > 2) {
-            size = 7;
-            createIsland(size, islandPoint);
-        }
-
     }
 
 
@@ -172,6 +152,7 @@ int main(void) {
                     inHand = false;
             }
             if (event.type == sfEvtMouseMoved) {
+                // move the world
                 int posX = event.mouseMove.x;
                 int posY = event.mouseMove.y;
                 if (inHand == true) {
@@ -182,18 +163,99 @@ int main(void) {
                 }
                 mousePosBackup.x = posX;
                 mousePosBackup.y = posY;
+                        
+
+
+                // select
+                int offsetX = 0, offsetY = 0;
+                
+
+                selectedTile.x = (posX - nullPoint.x) / tileWidth;
+                selectedTile.y = (posY - nullPoint.y) / h_tileHeight;
+
+                offsetX = (posX - nullPoint.x) % tileWidth;
+                offsetY = (posY - nullPoint.y) % h_tileHeight;
+
+                switch (selectedTile.y % 2) {
+                    case 0:
+                        if (offsetX <= (offsetY - h_tileHeight) / -0.5) {
+                            selectedTile.x--;
+                            selectedTile.y--;
+                        } 
+                        if (offsetX - h_tileWidth >= offsetY / 0.5) {
+                            selectedTile.y--;
+                        }
+                        break;
+                    case 1:
+                        switch (offsetX / h_tileWidth) {
+                            int eins, zwei;
+                            case 0:
+                                if (offsetX <= offsetY / 0.5)
+                                    selectedTile.x--;
+                                if (offsetX >= offsetY / 0.5)
+                                    selectedTile.y--;
+                                break;
+                            case 1:
+                                eins = offsetX - h_tileWidth;
+                                zwei = (offsetY - h_tileHeight) / -0.5;
+                                system("cls");
+                                printf("eins: %d zwei: %d\n", eins, zwei);
+
+                                if (offsetX - h_tileWidth <= (offsetY - h_tileHeight) / -0.5) {
+                                    selectedTile.y--;
+                                }
+                                if (offsetX - h_tileWidth >= (offsetY - h_tileHeight) / -0.5) {
+                                }
+                                break;
+                        } 
+                        break;
+                }
+
+
+
+
+                /* 
+                selectedTile.x = cellY + cellX;
+                selectedTile.y = cellY - cellX;
+                */
+
+                // mittlere stücke
+                /*
+                if ((-offsetY + h_tileHeight) / 0.5 >= offsetX)
+                    selectedTile.x--;
+                else if ((offsetY - h_tileHeight) / 0.5 >= offsetX)
+                    selectedTile.y++;
+                else if ((-(offsetY - h_tileHeight) + h_tileHeight) / 0.5 <= offsetX - h_tileWidth)
+                    selectedTile.x++;
+                else if (offsetY / 0.5 <= offsetX - h_tileWidth)
+                    selectedTile.y--;
+                
+                */ 
+                char cellX_Text[25];
+                char cellY_Text[25];
+
+                sprintf(cellX_Text, "CellX: %d OffsetX: %d", selectedTile.x, offsetX); 
+                sprintf(cellY_Text, "CellY: %d OffsetY: %d", selectedTile.y, offsetY); 
+                
+
+                sfText_setString(cellXText, cellX_Text);
+                sfText_setString(cellYText, cellY_Text);
+
+
             }
             if (event.type == sfEvtMouseWheelMoved) {
+
                 int mouse_x = event.mouseWheel.x;
                 int mouse_y = event.mouseWheel.y;
 
                 int delta = event.mouseWheel.delta;
 
+                printf("scale: %f \n delta: %d\n", scale, delta);
                 if (scale == 1 && delta == -1) {
                     continue;
                 }
-
                 scale += delta;
+
 
                 switch (delta) {
                     case 1:
@@ -205,18 +267,12 @@ int main(void) {
                         nullPoint.y -= ((mouse_y - nullPoint.y) * scale) / (scale + 1) - (mouse_y - nullPoint.y);
                         break;
                 }
-
-
-
-
-
             }
-
         }
-        sfRenderWindow_clear(window, sfTransparent);
-        for (int i=0; i<listCount; i++) {
-            sfVector2f vec = { (nullPoint.x-scale*h_tileWidth) + (list[i].x-list[i].y)*scale*h_tileWidth, nullPoint.y + (list[i].x+list[i].y)*scale*h_tileHeight };
 
+        sfRenderWindow_clear(window, sfWhite);
+        for (int i=0; i<listCount; i++) {
+            sfVector2f vec = { nullPoint.x + scale * (list[i].x * tileWidth + list[i].y % 2 * h_tileWidth), nullPoint.y + scale * (list[i].y * h_tileHeight) };
             sfIntRect rect = { list[i].type * tileWidth, 0, tileWidth, tileHeight };
             sfSprite_setTextureRect(grassSprite, rect);
 
@@ -227,8 +283,14 @@ int main(void) {
             sfRenderWindow_drawSprite(window, grassSprite, NULL);
         }
 
-
-
+        // selected
+        sfVector2f vecSel = { nullPoint.x + scale * (selectedTile.x * tileWidth + selectedTile.y % 2 * h_tileWidth), nullPoint.y + scale * (selectedTile.y * h_tileHeight) };
+        sfSprite_setPosition(selected, vecSel);
+        sfRenderWindow_drawSprite(window, selected, NULL);
+       
+        // select Rect 
+        sfRenderWindow_drawText(window, cellXText, NULL);
+        sfRenderWindow_drawText(window, cellYText, NULL);
 
 
         sfRenderWindow_display(window);
