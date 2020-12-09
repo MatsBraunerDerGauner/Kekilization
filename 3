@@ -181,8 +181,8 @@ int main(void) {
    
     for (int i = 0; i < worldSize.y; i++) {
         for (int j = 0; j < worldSize.x; j++) {
-            worldNoise[i][j] = temp_worldNoise[i][j];
-            temp_worldNoise[i][j] = 0;
+            worldNoise[j][i] = temp_worldNoise[j][i];
+            temp_worldNoise[j][i] = 0;
         }
     }
 
@@ -225,63 +225,17 @@ int main(void) {
 
     for (int i = 0; i < worldSize.y; i++) {
         for (int j = 0; j < worldSize.x; j++) {
-            worldNoise[i][j] += temp_worldNoise[i][j];
-            temp_worldNoise[i][j] = 0;
+            worldNoise[j][i] += temp_worldNoise[j][i];
+            temp_worldNoise[j][i] = 0;
         }
     }
 
     // 3 schritt
     for (int i = 0; i < worldSize.y; i++) {
         for (int j = 0; j < worldSize.x; j++) {
-            worldNoise[i][j] += randomBetween(-5, 5);
+            worldNoise[j][i] += randomBetween(-5, 5);
         }
     }
-
-    double lowest;
-
-    for (int i = 0; i < worldSize.y; i++) {
-        for (int j = 0; j < worldSize.x; j++) {
-           if (worldNoise[i][j] < lowest)
-               lowest = worldNoise[i][j];
-        }
-    }
-
-    for (int i = 0; i < worldSize.y; i++) {
-        for (int j = 0; j < worldSize.x; j++) {
-            worldNoise[i][j] -= lowest;
-        }
-    }
-
-    double highest;
-
-    for (int i = 0; i < worldSize.y; i++) {
-        for (int j = 0; j < worldSize.x; j++) {
-           if (worldNoise[i][j] > highest)
-               highest = worldNoise[i][j];
-        }
-    }
-
-    for (int i = 0; i < worldSize.y; i++) {
-        for (int j = 0; j < worldSize.x; j++) {
-            worldNoise[i][j] /= highest;
-        }
-    }
-
-
-    
-
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            surfaceTyp typ;
-            if (worldNoise[i][j] > 0.7)
-                typ = _grass;
-            else
-                typ = _water;
-            addPointToList(j, i, typ);
-        }
-    }
-
-
     
 
 
@@ -383,6 +337,7 @@ int main(void) {
 
                 int delta = event.mouseWheel.delta;
 
+                printf("scale: %f \n delta: %d\n", scale, delta);
                 if (scale == 1 && delta == -1) {
                     continue;
                 }
