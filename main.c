@@ -8,6 +8,9 @@
 #include"Include/object.h"
 #include"Include/human.h"
 
+#define p_float(x) printf("%f\n", x);
+#define p_int(x) printf("%d\n", x);
+
 /*-------------------------------------------------------------------------------------*\
 |----------<- ToDo ->-------------------------------------------------------------------|
 |   3 Player bewegen können                                                             |
@@ -21,9 +24,11 @@
 
 sfRenderWindow *window;
 
+// mouse
 bool inHand = false;
 struct point_t mousePosBackup = { 0, 0 };
 struct point_t selectedTile = { 0, 0 };
+bool action = false;
 
 int main(void) {
 
@@ -63,6 +68,7 @@ int main(void) {
     object_Init();
 
     humen_t *humen = humen_create("Matthias", 2, 2);
+    humen_t *humen2 = humen_create("Silvan", 5, 5);
 
     while (sfRenderWindow_isOpen(window)) {
         sfEvent event;
@@ -75,9 +81,27 @@ int main(void) {
                     inHand = true;
                     if (event.mouseButton.button == sfMouseLeft) {
                         for (int i = 0; i < objectListCount; i++) {
+                            if (action == true) {
+                                switch (objectList[i]->type) {
+                                    case humenType:
+                                        objectList[i]->setPosition(objectList[i], selectedTile.x, selectedTile.y);
+                                        printf("%s\n", ((humen_t*)objectList[i])->name); 
+                                        break;
+                                    case treeType:
+                                        // tree
+                                        break;
+                                    case defType:
+                                        break;
+                                }
+
+                                action = false;
+                                objectList[i]->selected = false;
+                                break;
+                            }
                             if (objectList[i]->position.x == selectedTile.x && objectList[i]->position.y == selectedTile.y) {
                                 objectList[i]->selected = true;
-                                 
+                                action = true;
+                                break;
                             }
                         }
                     }
@@ -168,27 +192,30 @@ int main(void) {
 
                 int delta = event.mouseWheel.delta;
 
-                if (scale == 1 && delta == -1) {
+                if (scale == 0.1f && delta == -1) {
                     continue;
                 }
-                scale += delta;
-
+                scale += (float)delta / 10;
+                
+                p_float(scale);
+                p_int(delta);
 
                 switch (delta) {
                     case 1:
-                        nullPoint.x -= ((mouse_x - nullPoint.x) * scale) / (scale - 1) - (mouse_x - nullPoint.x);
-                        nullPoint.y -= ((mouse_y - nullPoint.y) * scale) / (scale - 1) - (mouse_y - nullPoint.y);
+                        nullPoint.x -= (float)((mouse_x - nullPoint.x) * scale) / (float)((scale - 1) - (mouse_x - nullPoint.x));
+                        nullPoint.y -= (float)((mouse_y - nullPoint.y) * scale) / (float)((scale - 1) - (mouse_y - nullPoint.y));
                         break;
                     case -1:
-                        nullPoint.x -= ((mouse_x - nullPoint.x) * scale) / (scale + 1) - (mouse_x - nullPoint.x);
-                        nullPoint.y -= ((mouse_y - nullPoint.y) * scale) / (scale + 1) - (mouse_y - nullPoint.y);
+                        nullPoint.x -= (float)((mouse_x - nullPoint.x) * scale) / (float)((scale + 1) - (mouse_x - nullPoint.x));
+                        nullPoint.y -= (float)((mouse_y - nullPoint.y) * scale) / (float)((scale + 1) - (mouse_y - nullPoint.y));
                         break;
                 }
             }
         }
 
         sfRenderWindow_clear(window, sfWhite);
-        for (int i=0; i<listCount; i++) {
+        // draw Tiles
+        for (int i = 0; i < listCount; i++) {
             sfVector2f vec = { nullPoint.x + scale * (list[i].x * tileWidth + list[i].y % 2 * h_tileWidth), nullPoint.y + scale * (list[i].y * h_tileHeight) };
             sfIntRect rect = { list[i].type * tileWidth, 0, tileWidth, tileHeight };
             sfSprite_setTextureRect(tileSprite, rect);

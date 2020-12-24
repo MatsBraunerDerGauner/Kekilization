@@ -6,7 +6,7 @@
 
 // Sprites
 sfSprite *humenSprite;
-#define humenScale 0.5
+#define humenScale 5 
 
 typedef enum { defType, humenType, treeType } objectType;
 

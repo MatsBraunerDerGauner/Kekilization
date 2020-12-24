@@ -48,9 +48,9 @@ void map_Init() {
 
     // tiles
     tileSprite = sfSprite_create();
-    sfSprite_setTexture(tileSprite, sfTexture_createFromFile("Images/tiles.png", 0), 0);
+    sfSprite_setTexture(tileSprite, sfTexture_createFromFile("Images/tiles_II.png", 0), 0);
 
-    scale = 1;
+    scale = 1.0f;
 
     h_tileWidth = tileWidth / 2;
     h_tileHeight = tileHeight / 2;

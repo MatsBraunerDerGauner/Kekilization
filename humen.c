@@ -21,3 +21,4 @@ humen_t *humen_create(char *name, int posX, int posY) {
 
 
 
+

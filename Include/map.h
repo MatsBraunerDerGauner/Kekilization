@@ -14,8 +14,8 @@ sfSprite *selected;
 typedef enum { _grass, _water } surfaceTyp;
 
 // Tile Size
-#define tileWidth 40
-#define tileHeight 20
+#define tileWidth 400
+#define tileHeight 200
 
 // Tile scale
 float scale;
