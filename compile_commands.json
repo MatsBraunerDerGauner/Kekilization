@@ -1,5 +1,5 @@
 [
- { "directory": "d:\\Programmieren\\Workspaces\\CWorkspace\\Kekilization",
+ { "directory": "c:\\Users\\matbr\\1_CWorkspace\\Kekzivilation",
   "arguments": [
    "gcc",
    "main.c",

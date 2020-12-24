@@ -77,10 +77,9 @@ int main(void) {
                         for (int i = 0; i < objectListCount; i++) {
                             if (objectList[i]->position.x == selectedTile.x && objectList[i]->position.y == selectedTile.y) {
                                 objectList[i]->selected = true;
+                                 
                             }
                         }
-
-
                     }
                     break;
                 case sfEvtMouseButtonReleased:
@@ -204,17 +203,32 @@ int main(void) {
         // selected
         sfVector2f vecSel = { nullPoint.x + scale * (selectedTile.x * tileWidth + selectedTile.y % 2 * h_tileWidth), nullPoint.y + scale * (selectedTile.y * h_tileHeight) };
         sfVector2f scaleSelected = { scale, scale };
-        sfIntRect rectS = { 1 * tileWidth, 0, tileWidth, tileHeight };
+        sfIntRect rectS = { 0 * tileWidth, 0, tileWidth, tileHeight };
         sfSprite_setScale(selected, scaleSelected);
         sfSprite_setPosition(selected, vecSel);
         sfSprite_setTextureRect(selected, rectS);
         sfRenderWindow_drawSprite(window, selected, NULL);
+
+        // selected test yellow
+        for (int i = 0; i < objectListCount; i++) {
+            if (objectList[i]->selected == true) {
+                sfVector2f vec = { nullPoint.x + scale * (objectList[i]->position.x * tileWidth + objectList[i]->position.y % 2 * h_tileWidth), nullPoint.y + scale * (objectList[i]->position.y * h_tileHeight) };
+                sfVector2f scaleSelected = { scale, scale };
+                sfIntRect rectS = { 1 * tileWidth, 0, tileWidth, tileHeight };
+                sfSprite_setScale(selected, scaleSelected);
+                sfSprite_setPosition(selected, vec);
+                sfSprite_setTextureRect(selected, rectS);
+                sfRenderWindow_drawSprite(window, selected, NULL);
+            }
+        }
+                
+
        
         // select Rect Text
         sfRenderWindow_drawText(window, cellXText, NULL);
         sfRenderWindow_drawText(window, cellYText, NULL);
 
-        // Humen
+        // Humen§
         for (int i = 0; i < objectListCount; i++) {
             sfSprite_setScale(objectList[i]->objectSprite, vector2f(scale * humenScale, scale * humenScale));
             updatePosition(objectList[i]);
