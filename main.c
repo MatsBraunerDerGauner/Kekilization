@@ -6,7 +6,9 @@
 #include"Include/config.h"
 #include"Include/map.h"
 #include"Include/object.h"
-#include"Include/human.h"
+#include"Include/humen.h"
+#include"Include/tree.h"
+#include"Include/button.h"
 
 #define p_float(x) printf("%f\n", x);
 #define p_int(x) printf("%d\n", x);
@@ -35,13 +37,11 @@ int main(void) {
 
     // Textanzeige
     sfText *cellXText = sfText_create();
-    sfText_setFillColor(cellXText, sfRed);
     sfText_setColor(cellXText, sfBlack);
     sfText_setFont(cellXText, sfFont_createFromFile("Fonts/arial.ttf"  ));
     sfText_setCharacterSize(cellXText, 20);
 
     sfText *cellYText = sfText_create();
-    sfText_setFillColor(cellYText, sfRed);
     sfText_setColor(cellYText, sfBlack);
     sfText_setFont(cellYText, sfFont_createFromFile("Fonts/arial.ttf"  ));
     sfText_setCharacterSize(cellYText, 20);
@@ -62,13 +62,36 @@ int main(void) {
     // selectet
     selected = sfSprite_create();
     sfSprite_setTexture(selected, sfTexture_createFromFile("Images/selected.png", 0), 0);
-    
+
+    // Menu
+    button_t *btn = button_create("Start_Game");
+
+
+
+    bool menu_IsOpen = true;
+    while (sfRenderWindow_isOpen(window) && menu_IsOpen) {
+        sfEvent event;
+        while (sfRenderWindow_pollEvent(window, &event)) {
+            if (event.type == sfEvtClosed) {
+                sfRenderWindow_close(window);
+            }
+            if (event.type == sfEvtKeyPressed) {
+                if (event.key.code == sfKeyA) {
+                    menu_IsOpen = false;
+                }
+            }
+        }
+        sfRenderWindow_clear(window, sfWhite);
+        drawButton(window, btn);
+        sfRenderWindow_display(window);
+    }
 
     map_Init();
     object_Init();
 
-    humen_t *humen = humen_create("Matthias", 2, 2);
-    humen_t *humen2 = humen_create("Silvan", 5, 5);
+    humen_create("Matthias", 0, 0);
+    tree_create(5, 10);
+
 
     while (sfRenderWindow_isOpen(window)) {
         sfEvent event;
@@ -82,10 +105,13 @@ int main(void) {
                     if (event.mouseButton.button == sfMouseLeft) {
                         for (int i = 0; i < objectListCount; i++) {
                             if (action == true) {
+                                if (!(objectList[i]->selected == true))
+                                    continue;
                                 switch (objectList[i]->type) {
                                     case humenType:
+                                        if (getSurfaceType(selectedTile.x, selectedTile.y) == _water)
+                                            break;
                                         objectList[i]->setPosition(objectList[i], selectedTile.x, selectedTile.y);
-                                        printf("%s\n", ((humen_t*)objectList[i])->name); 
                                         break;
                                     case treeType:
                                         // tree
@@ -128,9 +154,9 @@ int main(void) {
                 // select
                 int offsetX = 0, offsetY = 0;
 
-                int temp_tileWidth = tileWidth * scale;
-                int temp_h_tileWidth = h_tileWidth * scale;
-                int temp_h_tileHeight = h_tileHeight * scale;
+                int temp_tileWidth = tileWidth * scale / 10;
+                int temp_h_tileWidth = h_tileWidth * scale / 10;
+                int temp_h_tileHeight = h_tileHeight * scale / 10;
                 
 
                 selectedTile.x = (posX - nullPoint.x) / temp_tileWidth;
@@ -191,23 +217,20 @@ int main(void) {
                 int mouse_y = event.mouseWheel.y;
 
                 int delta = event.mouseWheel.delta;
-
-                if (scale == 0.1f && delta == -1) {
+                if (scale == 1 && delta == -1) {
                     continue;
                 }
-                scale += (float)delta / 10;
-                
-                p_float(scale);
-                p_int(delta);
+                scale += delta;
+
 
                 switch (delta) {
                     case 1:
-                        nullPoint.x -= (float)((mouse_x - nullPoint.x) * scale) / (float)((scale - 1) - (mouse_x - nullPoint.x));
-                        nullPoint.y -= (float)((mouse_y - nullPoint.y) * scale) / (float)((scale - 1) - (mouse_y - nullPoint.y));
+                        nullPoint.x -= ((mouse_x - nullPoint.x) * scale) / (scale - 1) - (mouse_x - nullPoint.x);
+                        nullPoint.y -= ((mouse_y - nullPoint.y) * scale) / (scale - 1) - (mouse_y - nullPoint.y);
                         break;
                     case -1:
-                        nullPoint.x -= (float)((mouse_x - nullPoint.x) * scale) / (float)((scale + 1) - (mouse_x - nullPoint.x));
-                        nullPoint.y -= (float)((mouse_y - nullPoint.y) * scale) / (float)((scale + 1) - (mouse_y - nullPoint.y));
+                        nullPoint.x -= ((mouse_x - nullPoint.x) * scale) / (scale + 1) - (mouse_x - nullPoint.x);
+                        nullPoint.y -= ((mouse_y - nullPoint.y) * scale) / (scale + 1) - (mouse_y - nullPoint.y);
                         break;
                 }
             }
@@ -216,11 +239,11 @@ int main(void) {
         sfRenderWindow_clear(window, sfWhite);
         // draw Tiles
         for (int i = 0; i < listCount; i++) {
-            sfVector2f vec = { nullPoint.x + scale * (list[i].x * tileWidth + list[i].y % 2 * h_tileWidth), nullPoint.y + scale * (list[i].y * h_tileHeight) };
+            sfVector2f vec = { nullPoint.x + scale / 10 * (list[i].x * tileWidth + list[i].y % 2 * h_tileWidth), nullPoint.y + scale / 10 * (list[i].y * h_tileHeight) };
             sfIntRect rect = { list[i].type * tileWidth, 0, tileWidth, tileHeight };
             sfSprite_setTextureRect(tileSprite, rect);
 
-            sfVector2f scaleS = { scale, scale };
+            sfVector2f scaleS = { scale / 10, scale / 10 };
             sfSprite_setScale(tileSprite, scaleS);
 
             sfSprite_setPosition(tileSprite, vec);
@@ -228,8 +251,8 @@ int main(void) {
         }
 
         // selected
-        sfVector2f vecSel = { nullPoint.x + scale * (selectedTile.x * tileWidth + selectedTile.y % 2 * h_tileWidth), nullPoint.y + scale * (selectedTile.y * h_tileHeight) };
-        sfVector2f scaleSelected = { scale, scale };
+        sfVector2f vecSel = { nullPoint.x + scale / 10 * (selectedTile.x * tileWidth + selectedTile.y % 2 * h_tileWidth), nullPoint.y + scale / 10 * (selectedTile.y * h_tileHeight) };
+        sfVector2f scaleSelected = { scale / 10, scale / 10 };
         sfIntRect rectS = { 0 * tileWidth, 0, tileWidth, tileHeight };
         sfSprite_setScale(selected, scaleSelected);
         sfSprite_setPosition(selected, vecSel);
@@ -239,8 +262,8 @@ int main(void) {
         // selected test yellow
         for (int i = 0; i < objectListCount; i++) {
             if (objectList[i]->selected == true) {
-                sfVector2f vec = { nullPoint.x + scale * (objectList[i]->position.x * tileWidth + objectList[i]->position.y % 2 * h_tileWidth), nullPoint.y + scale * (objectList[i]->position.y * h_tileHeight) };
-                sfVector2f scaleSelected = { scale, scale };
+                sfVector2f vec = { nullPoint.x + scale / 10 * (objectList[i]->position.x * tileWidth + objectList[i]->position.y % 2 * h_tileWidth), nullPoint.y + scale / 10 * (objectList[i]->position.y * h_tileHeight) };
+                sfVector2f scaleSelected = { scale / 10, scale / 10 };
                 sfIntRect rectS = { 1 * tileWidth, 0, tileWidth, tileHeight };
                 sfSprite_setScale(selected, scaleSelected);
                 sfSprite_setPosition(selected, vec);

@@ -5,9 +5,15 @@
 #include<SFML/Graphics.h>
 
 // Sprites
+// Sprite for Humen Object
 sfSprite *humenSprite;
-#define humenScale 5 
+#define humenScale 0.5 
 
+// Sprite for Tree Object
+sfSprite *treeSprite;
+#define treeScale 1
+
+// Types of Objects
 typedef enum { defType, humenType, treeType } objectType;
 
 typedef struct {
@@ -23,7 +29,7 @@ typedef struct OBJECT_STRUCT {
     void (*setPosition)(struct OBJECT_STRUCT *object, int x, int y);
 } object_t;
 
-object_t *objectList[100];
+object_t *objectList[10000];
 
 int objectListCount;
 

@@ -42,6 +42,8 @@ struct point_t nullPoint;
 
 void addPointToList(int x, int y, surfaceTyp type);
 
+surfaceTyp getSurfaceType(int x, int y); 
+
 void map_Init();
 
 

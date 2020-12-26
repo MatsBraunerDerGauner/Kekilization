@@ -44,13 +44,24 @@ void addPointToList(int x, int y, surfaceTyp type) {
     listCount++;
 }
 
+surfaceTyp getSurfaceType(int x, int y) {
+    for (int i = 0; i < listCount; i++) {
+        if (list[i].x == x && list[i].y == y) {
+            return list[i].type;
+            break;
+        }
+    }
+
+    return 0;
+}
+
 void map_Init() {
 
     // tiles
     tileSprite = sfSprite_create();
     sfSprite_setTexture(tileSprite, sfTexture_createFromFile("Images/tiles_II.png", 0), 0);
 
-    scale = 1.0f;
+    scale = 5;
 
     h_tileWidth = tileWidth / 2;
     h_tileHeight = tileHeight / 2;

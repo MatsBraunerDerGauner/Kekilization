@@ -5,7 +5,11 @@
 typedef enum { false, true } bool;
 
 // Window size
-#define WINDOW_WIDTH 900
-#define WINDOW_HEIGHT 700
+#define WINDOW_WIDTH 2000
+#define WINDOW_HEIGHT 1000
+
+typedef struct VECTOR2I_STRUCT {
+    int x, y;
+} vec2i_t;
 
 #endif
